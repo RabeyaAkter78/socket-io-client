@@ -10,7 +10,7 @@ export default function ChatComponent({ userId }) {
   const [targetUserId, setTargetUserId] = useState("");
   const [isBroadcast, setIsBroadcast] = useState(true); // Default to broadcast
   const socket = useRef(null);
-
+  console.log(receivedMessages);
   useEffect(() => {
     socket.current = io("http://localhost:5000/");
 
@@ -20,20 +20,13 @@ export default function ChatComponent({ userId }) {
     // Listen for incoming messages (both broadcast and private)
     socket.current.on("message", (msg) => {
       console.log("Received message:", msg);
-      setReceivedMessages((previousMessages) => [...previousMessages, msg]);
+        // fetchMessages();
+        setReceivedMessages((previousMessages) => [
+          ...previousMessages,
+          { message: msg },
+        ]);
+      // setReceivedMessages((previousMessages) => [...previousMessages, msg]);
     });
-
-    // Fetch messages from the server when the component mounts
-    const fetchMessages = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/messages");
-        const data = await response.json();
-        console.log("Fetched messages:", data); // Debugging line
-        setReceivedMessages(data);
-      } catch (error) {
-        console.error("Failed to fetch messages:", error);
-      }
-    };
 
     fetchMessages();
 
@@ -42,11 +35,29 @@ export default function ChatComponent({ userId }) {
         socket.current.disconnect();
       }
     };
-  }, [userId]);
+  }, [userId, socket]);
+  // Fetch messages from the server when the component mounts
+  const fetchMessages = async () => {
+    console.log('yeees')
+    try {
+      const response = await fetch("http://localhost:5000/api/messages");
+      const data = await response.json();
+      // console.log( data); // Debugging line
+      setReceivedMessages(data);
+    } catch (error) {
+      console.error("Failed to fetch messages:", error);
+    }
+  };
 
   const sendMessage = () => {
     if (socket.current && sentMessage) {
-      const msgPayload = { message: { text: sentMessage }, from: userId };
+      const msgPayload = { sentMessage, userId };
+      // Immediately update the UI with the sent message
+      // setReceivedMessages((previousMessages) => [
+      //   ...previousMessages,
+      //   { message: msgPayload },
+      // ]);
+
       if (isBroadcast) {
         // Emit a broadcast message
         socket.current.emit("broadcast_message", msgPayload);
@@ -73,15 +84,9 @@ export default function ChatComponent({ userId }) {
       <div className="container mx-auto my-10">
         <h1>Chat Application</h1>
         <div>
-          {receivedMessages.map((msg, index) => (
-            <div key={index}>
-              {/* <strong>User Id: {msg.userId}</strong> */}
-              <h1>{msg.message?.message}</h1>
-              
-              {/* Adjust according to the structure of your message */}
-              {/* {typeof msg.message === "string" && msg.message.text
-                ? msg.message.text
-                : "No content"} */}
+          {receivedMessages.map((msg) => (
+            <div key={msg?._id}>
+              <h1> {msg?.message?.sentMessage}</h1>
             </div>
           ))}
         </div>
