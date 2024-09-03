@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 
 if (!process.env.NEXTAUTH_SECRET) {
   throw new Error("NEXTAUTH_SECRET must be defined");
@@ -10,20 +9,34 @@ export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
-      credentials: {},
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
       async authorize(credentials) {
         const { email, password } = credentials;
+
         try {
-          await connectMongoDB();
-          const user = await User.findOne({ email });
-          if (!user) {
+          const res = await fetch('http://localhost:5000/api/users', {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
+
+          if (!res.ok) {
+            throw new Error("Failed to authenticate");
+          }
+
+          const user = await res.json();
+
+          if (user && user.token) {
+            // Return user object with token or other info
+            return { ...user, token: user.token };
+          } else {
             return null;
           }
-          const passwordMatch = await bcrypt.compare(password, user.password);
-          if (!passwordMatch) {
-            return null;
-          }
-          return user;
         } catch (error) {
           console.error("Authorize error:", error);
           return null;
@@ -36,7 +49,7 @@ export const authOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: "/sign-in",
+    signIn: "/register",
   },
 };
 

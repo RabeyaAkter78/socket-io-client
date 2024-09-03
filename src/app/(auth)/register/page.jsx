@@ -12,7 +12,7 @@ function RegisterPage() {
   const [fileList, setFileList] = useState([]);
   const router = useRouter();
   const [error, setError] = useState();
-  const { data: session } = useSession();
+  // const { data: session } = useSession();
   const [form] = Form.useForm();
   const [formData, setFormData] = useState({
     name: "",
@@ -45,11 +45,12 @@ function RegisterPage() {
     try {
       const res = await fetch("http://localhost:5000/api/users", {
         method: "POST",
+        headers: {},
         body: formData,
-        headers: ["Content-Type", "application/json"],
       });
 
       const result = await res.json();
+      console.log(result);
       if (result.success) {
         router.push("/chat");
       } else {
@@ -78,12 +79,12 @@ function RegisterPage() {
     </div>
   );
   return (
-    <div className=" bg-violet-800">
+    <div className="bg-violet-800">
       <div className="container mx-auto pt-20">
-        <h1 className="text-4xl text-center font-bold text-white">
+        <h1 className="text-center text-4xl font-bold text-white">
           Register Now
         </h1>
-        <div className="flex justify-center items-center my-8">
+        <div className="my-8 flex items-center justify-center">
           <Upload
             name="avatar"
             listType="picture-card"
@@ -171,7 +172,7 @@ function RegisterPage() {
                         return Promise.resolve();
                       }
                       return Promise.reject(
-                        new Error("Passwords do not match!")
+                        new Error("Passwords do not match!"),
                       );
                     },
                   }),
@@ -187,7 +188,7 @@ function RegisterPage() {
               </Form.Item>
 
               {error && (
-                <p className="text-xl font-bold text-red-500 text-center">
+                <p className="text-center text-xl font-bold text-red-500">
                   {error}
                 </p>
               )}

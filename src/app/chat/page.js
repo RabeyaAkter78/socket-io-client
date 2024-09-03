@@ -1,12 +1,11 @@
-
-import ChatComponent from '@/Component/ChatComponent/ChatComponent'
-import React from 'react'
+import ChatHomeComponent from "@/Components/ChatHomeComponent/ChatHomeComponent.jsx";
 
 export default function ChatPage() {
   return (
-    <div className='bg-slate-300'>
+    <div className='bg-violet-800'>
     <div className='container mx-auto py-10 '>
-    <ChatComponent/>
+      <ChatHomeComponent/>
+
     </div>
       
     </div>

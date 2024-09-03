@@ -53,48 +53,50 @@ export default function ChatComponent({ userId }) {
   const sendMessage = () => {
     if (socket.current && sentMessage) {
       const msgPayload = { sentMessage, userId };
+      socket.current.emit("broadcast_message", msgPayload);
 
-      if (isBroadcast) {
-        // Emit a broadcast message
-        socket.current.emit("broadcast_message", msgPayload);
-      } else if (targetUserId) {
-        // Emit a private message to the specific user
-        socket.current.emit("private_message", {
-          to: targetUserId,
-          ...msgPayload,
-        });
-      }
+      // if (isBroadcast) {
+      //   // Emit a broadcast message
+      //   socket.current.emit("broadcast_message", msgPayload);
+      // } else if (targetUserId) {
+      //   // Emit a private message to the specific user
+      //   socket.current.emit("private_message", {
+      //     to: targetUserId,
+      //     ...msgPayload,
+      //   });
+      // }
 
       // Clear the input after sending the message
       setSentMessage("");
       console.log(
         `Sent message: ${sentMessage} ${
           isBroadcast ? "to all users" : `to user ${targetUserId}`
-        }`
+        }`,
       );
     }
   };
 
   return (
-    <div className="bg-slate-300">
+    <div className="">
       <div className="container mx-auto my-10">
-        <h1>Chat Application</h1>
         <div>
           {receivedMessages.map((msg, index) => (
             <div key={index}>
-              <h1>{msg?.message?.sentMessage}</h1>
+              <h1 className="my-2 rounded-xl border-2 p-2">
+                {msg?.message?.sentMessage}
+              </h1>
             </div>
           ))}
         </div>
 
-        <Radio.Group
+        {/* <Radio.Group
           onChange={(e) => setIsBroadcast(e.target.value === "true")}
           value={isBroadcast.toString()}
           style={{ marginBottom: "10px" }}
         >
           <Radio value="true">Broadcast</Radio>
           <Radio value="false">Private</Radio>
-        </Radio.Group>
+        </Radio.Group> */}
 
         {!isBroadcast && (
           <Input
