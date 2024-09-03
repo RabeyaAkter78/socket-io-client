@@ -1,5 +1,5 @@
 
-import ChatComponent from '@/_Component/ChatComponent/ChatComponent'
+import ChatComponent from '@/Component/ChatComponent/ChatComponent'
 import React from 'react'
 
 export default function ChatPage() {
