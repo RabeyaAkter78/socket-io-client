@@ -3,7 +3,8 @@
 import { Button, Input, Radio, Space } from "antd";
 import React, { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
-
+import { LuSend } from "react-icons/lu";
+import { ConfigProvider } from "antd";
 export default function ChatComponent({ userId }) {
   const [sentMessage, setSentMessage] = useState("");
   const [receivedMessages, setReceivedMessages] = useState([]);
@@ -54,18 +55,6 @@ export default function ChatComponent({ userId }) {
     if (socket.current && sentMessage) {
       const msgPayload = { sentMessage, userId };
       socket.current.emit("broadcast_message", msgPayload);
-
-      // if (isBroadcast) {
-      //   // Emit a broadcast message
-      //   socket.current.emit("broadcast_message", msgPayload);
-      // } else if (targetUserId) {
-      //   // Emit a private message to the specific user
-      //   socket.current.emit("private_message", {
-      //     to: targetUserId,
-      //     ...msgPayload,
-      //   });
-      // }
-
       // Clear the input after sending the message
       setSentMessage("");
       console.log(
@@ -77,47 +66,93 @@ export default function ChatComponent({ userId }) {
   };
 
   return (
-    <div className="">
-      <div className="container mx-auto my-10">
-        <div>
-          {receivedMessages.map((msg, index) => (
-            <div key={index}>
-              <h1 className="my-2 rounded-xl border-2 p-2">
-                {msg?.message?.sentMessage}
-              </h1>
-            </div>
-          ))}
-        </div>
+    <div className="flex h-full flex-col">
+      {/* Messages list */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {receivedMessages.map((msg, index) => (
+          <div key={index} className="py-3">
+            <span className="flex-1 overflow-auto rounded-md bg-[#8babd8] p-2 px-4 text-white">
+              {msg?.message?.sentMessage}
+            </span>
+          </div>
+        ))}
+      </div>
 
-        {/* <Radio.Group
-          onChange={(e) => setIsBroadcast(e.target.value === "true")}
-          value={isBroadcast.toString()}
-          style={{ marginBottom: "10px" }}
+      {/* Message input */}
+      <div className="border-t border-gray-300 p-4">
+        <ConfigProvider
+          theme={{
+            components: {
+              Input: {
+                colorBorder: "rgb(255,255,255)",
+                hoverBorderColor: "rgb(255,255,255)",
+                activeBorderColor: "rgb(255,255,255)",
+              },
+              Button: {
+                colorBorder: "rgb(255,255,255)",
+                defaultHoverBorderColor: "rgb(255,255,255)",
+              },
+            },
+          }}
         >
-          <Radio value="true">Broadcast</Radio>
-          <Radio value="false">Private</Radio>
-        </Radio.Group> */}
-
-        {!isBroadcast && (
-          <Input
-            placeholder="Target User ID"
-            value={targetUserId}
-            onChange={(e) => setTargetUserId(e.target.value)}
-            style={{ marginBottom: "10px" }}
-          />
-        )}
-
-        <Space.Compact style={{ width: "100%" }}>
-          <Input
-            placeholder="Enter message"
-            value={sentMessage}
-            onChange={(e) => setSentMessage(e.target.value)}
-          />
-          <Button type="primary" onClick={sendMessage}>
-            Send
-          </Button>
-        </Space.Compact>
+          <Space.Compact style={{ width: "100%", border: "none" }}>
+            <Input
+              placeholder="Enter message"
+              value={sentMessage}
+              onChange={(e) => setSentMessage(e.target.value)}
+            />
+            <Button onClick={sendMessage}>
+              <LuSend className="h-5 w-5 text-[#8babd8]" />
+            </Button>
+          </Space.Compact>
+        </ConfigProvider>
       </div>
     </div>
+
+    // <div className="">
+    //   <div className="">
+    //     <div className="container mx-auto">
+    //       {receivedMessages.map((msg, index) => (
+    //         <div key={index}>
+    //           <h1 className="py-3">
+    //             <span className="flex-1 overflow-auto rounded-md bg-[#8babd8] p-2 px-4 text-white">
+    //               {msg?.message?.sentMessage}
+    //             </span>
+    //           </h1>
+    //         </div>
+    //       ))}
+    //     </div>
+    //     <div className="fix bottom-0">
+    //       <ConfigProvider
+    //         theme={{
+    //           components: {
+    //             Input: {
+    //               colorBorder: "rgb(255,255,255)",
+    //               hoverBorderColor: "rgb(255,255,255)",
+    //               activeBorderColor: "rgb(255,255,255)",
+    //             },
+    //             Button: {
+    //               colorBorder: "rgb(255,255,255)",
+    //               defaultHoverBorderColor: "rgb(255,255,255)",
+    //             },
+    //           },
+    //         }}
+    //       >
+    //         {/* footer of messages section */}
+    //         <Space.Compact style={{ width: "100%", border: "none" }}>
+    //           <Input
+    //             placeholder="Enter message"
+    //             value={sentMessage}
+    //             onChange={(e) => setSentMessage(e.target.value)}
+    //             className="fixed"
+    //           />
+    //           <Button onClick={sendMessage} className="">
+    //             <LuSend className="h-5 w-5 text-[#8babd8]" />
+    //           </Button>
+    //         </Space.Compact>
+    //       </ConfigProvider>
+    //     </div>
+    //   </div>
+    // </div>
   );
 }

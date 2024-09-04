@@ -2,12 +2,10 @@ import ChatHomeComponent from "@/Components/ChatHomeComponent/ChatHomeComponent.
 
 export default function ChatPage() {
   return (
-    <div className='bg-violet-800'>
-    <div className='container mx-auto py-10 '>
-      <ChatHomeComponent/>
-
+    <div className="bg-[#8babd8]">
+      <div className="py-10">
+        <ChatHomeComponent />
+      </div>
     </div>
-      
-    </div>
-  )
+  );
 }
