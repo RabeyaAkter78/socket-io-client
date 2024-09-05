@@ -6,6 +6,7 @@ import { Button, ConfigProvider, Form, Input } from "antd";
 import { useRouter } from "next/navigation";
 import { Upload } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import Link from "next/link";
 function RegisterPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
@@ -43,7 +44,7 @@ function RegisterPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/users", {
+      const res = await fetch("http://localhost:5000/auth", {
         method: "POST",
         headers: {},
         body: formData,
@@ -52,7 +53,7 @@ function RegisterPage() {
       const result = await res.json();
       console.log(result);
       if (result.success) {
-        router.push("/chat");
+        router.push("/login");
       } else {
         setError(result.error);
       }
@@ -192,16 +193,20 @@ function RegisterPage() {
                   {error}
                 </p>
               )}
-              <Form.Item wrapperCol={{ span: 16 }}>
-                <Button
-                  style={{ justifyContent: "center", alignItems: "center" }}
-                  type="primary"
-                  htmlType="submit"
-                >
+              <Form.Item>
+                <Button block htmlType="submit">
                   Sign Up
                 </Button>
               </Form.Item>
             </Form>
+            <p className="text-center text-white">
+              Already Have an Account?
+              <span>
+                <Link href="/login" className="underline">
+                  Login
+                </Link>
+              </span>
+            </p>
           </ConfigProvider>
         </div>
       </div>
