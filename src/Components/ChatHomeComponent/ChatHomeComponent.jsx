@@ -1,10 +1,9 @@
 "use client";
 import Image from "next/image";
-import ChatComponent from "../ChatComponent/ChatComponent";
 import { useEffect, useState } from "react";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { AudioOutlined } from "@ant-design/icons";
-import { Button, Input, Space } from "antd";
+import { Button, FloatButton, Input, Space } from "antd";
 import { TbMessageSearch } from "react-icons/tb";
 import { IoCall } from "react-icons/io5";
 import { BsThreeDotsVertical } from "react-icons/bs";
@@ -16,7 +15,9 @@ export default function ChatHomeComponent() {
   const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState(null);
   const [messageInput, setMessageInput] = useState("");
-  console.log(users?.[0]?._id);
+  const [loggedInUser, setLoggedInUser] = useState(null);
+  // console.log(currentUser);
+  // console.log(loggedInUser);
   // socket:
   // Initialize socket connection
   useEffect(() => {
@@ -50,10 +51,18 @@ export default function ChatHomeComponent() {
       setMessageInput("");
     }
   };
+  // get loggedin user:
+  useEffect(() => {
+    const loggedInUserString = localStorage.getItem("user");
+    if (loggedInUserString) {
+      const userObject = JSON.parse(loggedInUserString);
+      setLoggedInUser(userObject);
+    }
+  }, []);
   // Handle user selection
   const handleUserSelect = (user) => {
     setCurrentUser(user);
-    // Fetch chat history with this user if needed
+
     // e.g., setMessages(chatHistoryWithUser);
   };
 
@@ -68,7 +77,8 @@ export default function ChatHomeComponent() {
     />
   );
   const onSearch = (value, _e, info) => console.log(info?.source, value);
-  // Fetch users from the backend
+
+  // Fetch users from the backend and exclude the logged-in user
   useEffect(() => {
     fetch("http://localhost:5000/api/users", {
       method: "GET",
@@ -78,16 +88,42 @@ export default function ChatHomeComponent() {
     })
       .then((res) => res.json())
       .then((data) => {
-        setUsers(data);
+        if (loggedInUser) {
+          // Filter out the logged-in user from the user list
+          const filteredUsers = data.filter(
+            (user) => user._id !== loggedInUser._id,
+          );
+          setUsers(filteredUsers);
+        } else {
+          setUsers(data);
+        }
       })
       .catch((error) => console.error("Error fetching users:", error));
-  }, []);
+  }, [loggedInUser]);
 
   return (
     <div className="container mx-auto flex h-screen bg-white">
       {/* Users section */}
       <div className="flex h-[95%] w-full flex-col border-r border-gray-300 md:w-4/12">
         {/* Users section header */}
+        <div className="flex flex-col items-center justify-center">
+          {loggedInUser ? (
+            <>
+              <img
+                src={
+                  loggedInUser.avatarUrl
+                    ? `http://localhost:5000${loggedInUser.avatarUrl}`
+                    : "/default-avatar.png"
+                }
+                alt="Logged-in User Avatar"
+                className="my-5 h-20 w-20 rounded-full border-2"
+              />
+              <h1 className="text-xl font-bold">{loggedInUser.name}</h1>
+            </>
+          ) : (
+            <p>Loading user...</p>
+          )}
+        </div>
         <div className="flex items-center justify-between border-b border-gray-300 p-4">
           <RxHamburgerMenu />
           <Space direction="vertical">
@@ -103,7 +139,6 @@ export default function ChatHomeComponent() {
         <div className="flex-1 overflow-y-auto p-4">
           {users.length > 0 ? (
             users.map((user) => {
-              // const imageUrl = `http://localhost:5000${user?.avatarUrl}`;
               const imageUrl = user?.avatarUrl
                 ? `http://localhost:5000${user?.avatarUrl}`
                 : "/default-avatar.png";
@@ -138,6 +173,21 @@ export default function ChatHomeComponent() {
           ) : (
             <p>No users found</p>
           )}
+        </div>
+        {/* logOut */}
+        <div className="flex items-center justify-center">
+          <Button
+            onClick={() => {
+              localStorage.removeItem("user");
+              window.location.href = "/login";
+            }}
+            style={{
+              backgroundColor: "#8babd8",
+              color: "white",
+            }}
+          >
+            Log Out
+          </Button>
         </div>
       </div>
 
@@ -193,8 +243,6 @@ export default function ChatHomeComponent() {
             <LuSend className="h-5 w-5 text-[#8babd8]" />
           </Button>
         </Space.Compact>
-        {/* broadcast message */}
-        {/* <ChatComponent /> */}
       </div>
     </div>
   );

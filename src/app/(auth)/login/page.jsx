@@ -26,13 +26,13 @@ export default function page() {
       const result = await response.json();
 
       if (result.success) {
-        // console.log("Success:", result);
-        // localStorage.setItem("user", JSON.stringify(result?.data));
+        console.log("Success:", result);
+        localStorage.setItem("user", JSON.stringify(result?.data));
         router.push(`/chat`);
-        // message.success("Log In Successfull");
+        message.success("Log In Successfull");
       } else {
         console.error("Failed:", result);
-        message.error(result?.message);
+        // message.error(result?.message);
       }
     } catch (error) {
       console.error("Error:", error);
